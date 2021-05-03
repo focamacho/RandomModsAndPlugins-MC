@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.focamacho.idontlikebees.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "idontlikebees.refmap.json",
+  "mixins": [
+    "BeeEntityMixin",
+    "BeehiveTileEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

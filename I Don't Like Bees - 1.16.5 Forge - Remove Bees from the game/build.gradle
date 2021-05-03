@@ -1,0 +1,105 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
+group = 'com.focamacho'
+version = '1.0'
+archivesBaseName = 'IDontLikeBees-1.16.5'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+mixin {
+    add sourceSets.main, "idontlikebees.refmap.json"
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20210309-1.16.5'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            properties 'mixin.env.disableRefMap': 'true'
+            arg "-mixin.config=idontlikebees.mixins.json"
+
+            mods {
+                idontlikebees {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            properties 'mixin.env.disableRefMap': 'true'
+            arg "-mixin.config=idontlikebees.mixins.json"
+
+            mods {
+                idontlikebees {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            properties 'mixin.env.disableRefMap': 'true'
+            arg "-mixin.config=idontlikebees.mixins.json"
+            args '--mod', 'idontlikebees', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                idontlikebees {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.16.5-36.1.16'
+
+    //Mixins
+    compileOnly('org.spongepowered:mixin:0.8-SNAPSHOT') {
+        transitive = false
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "idontlikebees",
+                "Specification-Vendor"    : "Focamacho",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : "Focamacho",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs": "idontlikebees.mixins.json"
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
